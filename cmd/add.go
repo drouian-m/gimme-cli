@@ -29,7 +29,16 @@ This application is a tool to generate the needed files
 to quickly create a Cobra application.`,
 	Run: func(cmd *cobra.Command, args []string) {
 
-		url := "http://cdn.ziggornif.xyz/packages"
+		cdnUrl, ok := os.LookupEnv("GIMME_URL")
+		if !ok {
+			fmt.Println("Missing GIMME_URL environment variable")
+			return
+		}
+		token, ok := os.LookupEnv("GIMME_TOKEN")
+		if !ok {
+			fmt.Println("Missing GIMME_TOKEN environment variable")
+			return
+		}
 		method := "POST"
 
 		payload := &bytes.Buffer{}
@@ -37,7 +46,6 @@ to quickly create a Cobra application.`,
 		filePath, err := cmd.Flags().GetString("file")
 		moduleName, err := cmd.Flags().GetString("name")
 		version, err := cmd.Flags().GetString("version")
-		token, err := cmd.Flags().GetString("token")
 
 		fmt.Printf("Uploading module %s@%s\n", moduleName, version)
 
@@ -66,7 +74,7 @@ to quickly create a Cobra application.`,
 		}
 
 		client := &http.Client{}
-		req, err := http.NewRequest(method, url, payload)
+		req, err := http.NewRequest(method, cdnUrl, payload)
 
 		if err != nil {
 			fmt.Println("Error", err)
@@ -87,7 +95,7 @@ to quickly create a Cobra application.`,
 			fmt.Println(err)
 			return
 		}
-		fmt.Printf("Module %s@%s has been successfully uploaded. You can retrieve it from %s/gimme/%s@%s/<file>\n", moduleName, version, url, moduleName, version)
+		fmt.Printf("Module %s@%s has been successfully uploaded. You can retrieve it from %s/gimme/%s@%s/<file>\n", moduleName, version, cdnUrl, moduleName, version)
 	},
 }
 
@@ -96,7 +104,6 @@ func init() {
 
 	addCmd.PersistentFlags().String("name", "", "Module name")
 	addCmd.PersistentFlags().String("version", "", "Module version (ex: 1.2.3)")
-	addCmd.PersistentFlags().String("token", "", "Gimme token")
 	addCmd.PersistentFlags().String("file", "", "Module file to upload (zip only)")
 
 	// Here you will define your flags and configuration settings.
