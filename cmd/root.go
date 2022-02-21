@@ -1,7 +1,3 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -14,15 +10,10 @@ import (
 var rootCmd = &cobra.Command{
 	Use:   "gimme-cli",
 	Short: "Gimme CDN CLI",
-	Long: `A longer description that spans multiple lines and likely contains
-examples and usage of using your application. For example:
+	Long: `Gimme CDN CLI Tool designed to publish modules to a CDN instance.
 
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
-	// Uncomment the following line if your bare application
-	// has an action associated with it:
-	// Run: func(cmd *cobra.Command, args []string) { },
+For example:
+gimme-cli add --name=awesome-lib --version=1.2.3 --file=./dist.zip`,
 }
 
 // Execute adds all child commands to the root command and sets flags appropriately.

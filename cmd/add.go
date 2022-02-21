@@ -1,7 +1,3 @@
-/*
-Copyright © 2022 NAME HERE <EMAIL ADDRESS>
-
-*/
 package cmd
 
 import (
@@ -20,13 +16,8 @@ import (
 // addCmd represents the add command
 var addCmd = &cobra.Command{
 	Use:   "add",
-	Short: "Add package to the CDN",
-	Long: `A longer description that spans multiple lines and likely contains examples
-and usage of using your command. For example:
-
-Cobra is a CLI library for Go that empowers applications.
-This application is a tool to generate the needed files
-to quickly create a Cobra application.`,
+	Short: "Add a module to the CDN",
+	Long:  ``,
 	Run: func(cmd *cobra.Command, args []string) {
 
 		cdnUrl, ok := os.LookupEnv("GIMME_URL")
@@ -47,23 +38,31 @@ to quickly create a Cobra application.`,
 		filePath, err := cmd.Flags().GetString("file")
 		moduleName, err := cmd.Flags().GetString("name")
 		version, err := cmd.Flags().GetString("version")
+		if err != nil {
+			fmt.Println("Error: File does not exists")
+			return
+		}
 
 		fmt.Printf("Uploading module %s@%s\n", moduleName, version)
 
+		file, err := os.Open(filePath)
+		defer func(file *os.File) {
+			err := file.Close()
+			if err != nil {
+				fmt.Println("Fail to close file")
+			}
+		}(file)
+
 		if err != nil {
-			fmt.Println("Error: File does not exists")
-		}
-		file, errFile1 := os.Open(filePath)
-		defer file.Close()
-		if errFile1 != nil {
-			fmt.Println("Error", errFile1)
+			fmt.Println("Error", err)
 			return
 		}
-		part1,
-			errFile1 := writer.CreateFormFile("file", filepath.Base(filePath))
-		_, errFile1 = io.Copy(part1, file)
-		if errFile1 != nil {
-			fmt.Println("Error", errFile1)
+
+		formFile,
+			err := writer.CreateFormFile("file", filepath.Base(filePath))
+		_, err = io.Copy(formFile, file)
+		if err != nil {
+			fmt.Println("Error", err)
 			return
 		}
 		_ = writer.WriteField("name", moduleName)
@@ -89,11 +88,16 @@ to quickly create a Cobra application.`,
 			fmt.Println("Error", err)
 			return
 		}
-		defer res.Body.Close()
+		defer func(Body io.ReadCloser) {
+			err := Body.Close()
+			if err != nil {
+				fmt.Println("Fail to close file")
+			}
+		}(res.Body)
 
 		_, err = ioutil.ReadAll(res.Body)
 		if err != nil {
-			fmt.Println(err)
+			fmt.Println("Error", err)
 			return
 		}
 		fmt.Printf("Module %s@%s has been successfully uploaded. You can retrieve it from %s/gimme/%s@%s/<file>\n", moduleName, version, cdnUrl, moduleName, version)
