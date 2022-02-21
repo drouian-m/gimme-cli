@@ -39,6 +39,7 @@ to quickly create a Cobra application.`,
 			fmt.Println("Missing GIMME_TOKEN environment variable")
 			return
 		}
+
 		method := "POST"
 
 		payload := &bytes.Buffer{}
@@ -74,7 +75,7 @@ to quickly create a Cobra application.`,
 		}
 
 		client := &http.Client{}
-		req, err := http.NewRequest(method, cdnUrl, payload)
+		req, err := http.NewRequest(method, fmt.Sprintf("%s%s", cdnUrl, "/packages"), payload)
 
 		if err != nil {
 			fmt.Println("Error", err)
